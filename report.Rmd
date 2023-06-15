@@ -1,0 +1,64 @@
+---
+title: "Explore phosphoproteomics profilling data (A multi-model study)"
+output:
+  html_document:
+    toc: true
+---
+
+## Introduction
+
+This example was adapted from the publication 
+["The Global Phosphorylation Landscape of SARS-CoV-2 Infection"](https://www.sciencedirect.com/science/article/pii/S0092867420308114?via%3Dihub#app2) 
+by Bouhaddou M et al. (Cell, 2020), to demonstrate how to upload a multi-model study to [OmicNavigator](https://github.com/abbvie-external/OmicNavigator) (ON). More information about this code and the data required to execute it can be found at [OmicNavigatorMultimodelExample](https://github.com/abbvie-external/OmicNavigatorExample/tree/main).
+
+Below you find a short excerpt of the methods:
+
+[vignette]: https://bioconductor.org/packages/release/workflows/vignettes/RNAseq123/inst/doc/limmaWorkflow.html
+
+> To determine how SARS-CoV-2 hijacks host-protein signaling, a global phosphoproteomics experiment was performed in Vero E6 cells, a cell line originating from the kidney of a female African green monkey (Chlorocebus sabaeus) (Osada et al., 2014). This cell line was selected because of its high susceptibility to SARS-CoV-2 infection (Harcourt et al., 2020). Cells were harvested in biological triplicate at 6 time points after SARS-CoV-2 infection (0, 2, 4, 8, 12, or 24 h) or after mock infection at 0 or 24 h. Using a data-independent acquisition (DIA) proteomics approach, each sample was then partitioned and analyzed for changes in global protein abundance or phosphorylation. Chlorocebus sabaeus and human protein sequences were aligned, and phosphorylation sites and protein identifiers were mapped to their respective human protein orthologs. Phosphorylation fold changes calculated using the 0- or 24-h mock control were highly comparable (correlation coefficient r = 0.77); therefore, the 0-h mock control was used for all subsequent comparisons.
+
+
+## OmicNavigator multi-model study structure
+
+
+The data related to this section of the publication is available as Supplemental Information for Table S1 (1-s2.0-S0092867420308114-mmc1.xlsx). This file can be found at  [`\data`](https://github.com/abbvie-external/OmicNavigatorMultimodelExample/tree/main/data). Using this data, a multi-model study for ON was generated following steps provided in file [build.R](https://github.com/abbvie-external/OmicNavigatorMultimodelExample/blob/main/build.R)
+
+The ON study is structured as follows:
+
+**Models**
+
+
+- abundance 
+- phosphorylation
+
+
+**Tests**
+
+
+- Ctrl 24h vs. Ctrl 0h
+- Infection 0h vs. Ctrl 0h
+- Infection 2h vs. Ctrl 0h
+- Infection 4h vs. Ctrl 0h
+- Infection 8h vs. Ctrl 0h
+- Infection 12h vs. Ctrl 0h
+- Infection 24h vs. Ctrl 0h
+
+
+**Results**
+
+
+- adjusted p value
+- log2 Fold-change
+
+
+For more information on building this ON study, please see file [build.R](https://github.com/abbvie-external/OmicNavigatorMultimodelExample/blob/main/build.R)
+
+
+## Citations
+
+> Bouhaddou M, Memon D, Meyer B et al. The Global Phosphorylation 
+> Landscape of SARS-CoV-2 Infection. Cell, vol 182(3), pages
+> 685-712.e19. 2020. https://doi.org/10.1016/j.cell.2020.06.034.
+
+
+

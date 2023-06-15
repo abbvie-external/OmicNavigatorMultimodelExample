@@ -14,7 +14,7 @@ abundance <- openxlsx::read.xlsx("data/1-s2.0-S0092867420308114-mmc1.xlsx", shee
 
 # Create a new study -----------------------------------------------------------
 
-study <- createStudy("SARScov2globalPhosphorylation",
+study <- createStudy("SARSCoVPhosphoproteomicsProfiling",
                      "SARS-CoV-2 global phosphorylation data converted to OmicNavigator",
                      version = "0.1.0")
 
@@ -46,10 +46,18 @@ features_abundance <- features_abundance[cleaned_abundance_features,]
 features_abundance <- data.frame(apply(features_abundance, 2, as.character))
 
 features <- list(
-  abundance = features_abundance,
-  phosphorylation = features_phospho
+  abundance = features_abundance[1:3],
+  phosphorylation = features_phospho[1:5]
 )
 study <- addFeatures(study, features)
+
+# MetaFeatures -----------------------------------------------------------------
+
+metaFeatures <- list(
+  abundance = features_abundance[, c(1, 4:ncol(features_abundance))],
+  phosphorylation = features_phospho[, c(1, 6:ncol(features_phospho))]
+)
+study <- addMetaFeatures(study, metaFeatures)
 
 # Mapping ----------------------------------------------------------------------
 
@@ -98,6 +106,11 @@ results <- list(
 
 results$abundance <- lapply(results$abundance, setNames, c('C.s.uniprot', 'log2FC', 'adj.pvalue'))
 results$phosphorylation <- lapply(results$phosphorylation, setNames, c('C.s.uniprot', 'log2FC', 'adj.pvalue'))
+
+# sort df by adj pvalue
+results$abundance <- lapply(results$abundance, function(x){x[order(x$adj.pvalue),]})
+results$phosphorylation <- lapply(results$phosphorylation, function(x){x[order(x$adj.pvalue),]})
+  
 study <- addResults(study, results)
 
 # Tests ------------------------------------------------------------------------
@@ -194,6 +207,23 @@ tests <- list(
   )
 )
 study <- addTests(study, tests)
+
+# Linkouts to external resources for the results table -------------------------
+# 
+resultsLinkouts <- list(
+  abundance = list(
+    Gene_Name = "https://www.genenames.org/data/gene-symbol-report/#!/symbol/",
+    C.s.uniprot = "https://www.uniprot.org/uniprotkb/",
+    H.s.uniprot = "https://www.uniprot.org/uniprotkb/"
+  ),
+  phosphorylation = list(
+    Gene_Name = "https://www.genenames.org/data/gene-symbol-report/#!/symbol/",
+    C.s.uniprot = "https://www.uniprot.org/uniprotkb/",
+    H.s.uniprot = "https://www.uniprot.org/uniprotkb/"
+    
+  )
+)
+study <- addResultsLinkouts(study, resultsLinkouts)
 
 # Custom plots -----------------------------------------------------------------
 
@@ -456,6 +486,14 @@ plotStudy(study,
                          "inf08h_vs_ctrl00h", "inf12h_vs_ctrl00h",
                          "inf24h_vs_ctrl00h"), 2),
           plotID = 'phosphoplot_MultiModel_multiFeature') %>% suppressMessages()
+
+# Reports ----------------------------------------------------------------------
+
+reports <- list(
+  abundance = "results/report.html",
+  phosphorylation = "results/report.html"
+)
+study <- addReports(study, reports)
 
 # Install study package and start app ------------------------------------------
 
