@@ -29,6 +29,7 @@ study <- addModels(study, models)
 # Features ---------------------------------------------------------------------
 
 # List of unique uniprot entries in phosphorylation group & having finite nr
+
 cleaned_phospho_features <- which(!duplicated(phospho$C.s.uniprot) &
                                     is.finite(as.numeric(phospho[, 'Ctrl_24Hr.log2FC'])))
 
@@ -209,7 +210,7 @@ tests <- list(
 study <- addTests(study, tests)
 
 # Linkouts to external resources for the results table -------------------------
-# 
+ 
 resultsLinkouts <- list(
   abundance = list(
     Gene_Name = "https://www.genenames.org/data/gene-symbol-report/#!/symbol/",
@@ -220,7 +221,6 @@ resultsLinkouts <- list(
     Gene_Name = "https://www.genenames.org/data/gene-symbol-report/#!/symbol/",
     C.s.uniprot = "https://www.uniprot.org/uniprotkb/",
     H.s.uniprot = "https://www.uniprot.org/uniprotkb/"
-    
   )
 )
 study <- addResultsLinkouts(study, resultsLinkouts)
@@ -490,8 +490,8 @@ plotStudy(study,
 # Reports ----------------------------------------------------------------------
 
 reports <- list(
-  abundance = "results/report.html",
-  phosphorylation = "results/report.html"
+  abundance = "data/report.html",
+  phosphorylation = "data/report.html"
 )
 study <- addReports(study, reports)
 

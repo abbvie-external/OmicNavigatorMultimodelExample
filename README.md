@@ -34,7 +34,14 @@ study package.
     source("setup.R", local = new.env())
     ```
 
-1. Create and install the OmicNavigator study package. This reads the analysis
+2. Generate the report in html format. The output file is exported to `data/`.
+
+    ```
+    library(rmarkdown)
+    render("report.Rmd", output_file = "data/report.html", envir = new.env())
+    ```
+
+3. Create and install the OmicNavigator study package. This reads the analysis
 results files in `data/`, converts them to an OmicNavigator study package,
 installs the package, and starts the app.
 
