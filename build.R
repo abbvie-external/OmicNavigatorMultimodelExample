@@ -215,12 +215,16 @@ resultsLinkouts <- list(
   abundance = list(
     Gene_Name = "https://www.genenames.org/data/gene-symbol-report/#!/symbol/",
     C.s.uniprot = "https://www.uniprot.org/uniprotkb/",
-    H.s.uniprot = "https://www.uniprot.org/uniprotkb/"
+    H.s.uniprot = c("https://www.uniprot.org/uniprotkb/",
+                    "https://www.phosphosite.org/uniprotAccAction?id=", 
+                    "https://www.proteomicsdb.org/proteomicsdb/#protein/search/query?protein_name=")
   ),
   phosphorylation = list(
     Gene_Name = "https://www.genenames.org/data/gene-symbol-report/#!/symbol/",
     C.s.uniprot = "https://www.uniprot.org/uniprotkb/",
-    H.s.uniprot = "https://www.uniprot.org/uniprotkb/"
+    H.s.uniprot = c("https://www.uniprot.org/uniprotkb/",
+                    "https://www.phosphosite.org/uniprotAccAction?id=", 
+                    "https://www.proteomicsdb.org/proteomicsdb/#protein/search/query?protein_name=")
   )
 )
 study <- addResultsLinkouts(study, resultsLinkouts)
