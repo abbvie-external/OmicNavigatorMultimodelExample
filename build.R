@@ -10,7 +10,7 @@ library(OmicNavigator)
 # Import data from file
 
 phospho   <- openxlsx::read.xlsx("data/1-s2.0-S0092867420308114-mmc1.xlsx", sheet=1)
-abundance <- openxlsx::read.xlsx("data/1-s2.0-S0092867420308114-mmc1.xlsx", sheet=2)
+protein_abundance <- openxlsx::read.xlsx("data/1-s2.0-S0092867420308114-mmc1.xlsx", sheet=2)
 
 # Create a new study -----------------------------------------------------------
 
@@ -21,8 +21,8 @@ study <- createStudy("SARSCoVPhosphoproteomicsProfiling",
 # Models -----------------------------------------------------------------------
 
 models <- list(
-  abundance = "DE analysis of protein abundance in Vero E6 cells",
-  phosphorylation = "DE analysis of protein phosphorylation in Vero E6 cells" 
+  protein_abundance = "DE analysis of protein abundance in Vero E6 cells",
+  protein_phosphorylation = "DE analysis of protein phosphorylation in Vero E6 cells" 
 )
 study <- addModels(study, models)
 
@@ -33,8 +33,8 @@ study <- addModels(study, models)
 cleaned_phospho_features <- which(!duplicated(phospho$C.s.uniprot) &
                                     is.finite(as.numeric(phospho[, 'Ctrl_24Hr.log2FC'])))
 
-cleaned_abundance_features <- which(!duplicated(abundance$C.s.uniprot) &
-                                      is.finite(as.numeric(abundance[, 'Ctrl_24Hr.log2FC'])))
+cleaned_abundance_features <- which(!duplicated(protein_abundance$C.s.uniprot) &
+                                      is.finite(as.numeric(protein_abundance[, 'Ctrl_24Hr.log2FC'])))
 
 # FeatureIDs in the first column are required to be a character vector
 # with unique entries
@@ -42,31 +42,31 @@ features_phospho <- phospho[, c(4, 1:3, 5, 20:ncol(phospho))]
 features_phospho <- features_phospho[cleaned_phospho_features,]
 features_phospho <- data.frame(apply(features_phospho, 2, as.character))
 
-features_abundance <- abundance[, c(3, 1:2, 18:ncol(abundance))]
+features_abundance <- protein_abundance[, c(3, 1:2, 18:ncol(protein_abundance))]
 features_abundance <- features_abundance[cleaned_abundance_features,]
 features_abundance <- data.frame(apply(features_abundance, 2, as.character))
 
 features <- list(
-  abundance = features_abundance[1:3],
-  phosphorylation = features_phospho[1:5]
+  protein_abundance = features_abundance[1:3],
+  protein_phosphorylation = features_phospho[1:5]
 )
 study <- addFeatures(study, features)
 
 # MetaFeatures -----------------------------------------------------------------
 
 metaFeatures <- list(
-  abundance = features_abundance[, c(1, 4:ncol(features_abundance))],
-  phosphorylation = features_phospho[, c(1, 6:ncol(features_phospho))]
+  protein_abundance = features_abundance[, c(1, 4:ncol(features_abundance))],
+  protein_phosphorylation = features_phospho[, c(1, 6:ncol(features_phospho))]
 )
 study <- addMetaFeatures(study, metaFeatures)
 
 # Mapping ----------------------------------------------------------------------
 
 phospho_id <- data.frame("C.s.uniprot" = phospho[cleaned_phospho_features, "C.s.uniprot"])
-phospho_id$phosphorylation <- phospho_id$C.s.uniprot
+phospho_id$protein_phosphorylation <- phospho_id$C.s.uniprot
 
-abundance_id <- data.frame("C.s.uniprot" = abundance[cleaned_abundance_features, "C.s.uniprot"])
-abundance_id$abundance <- abundance_id$C.s.uniprot
+abundance_id <- data.frame("C.s.uniprot" = protein_abundance[cleaned_abundance_features, "C.s.uniprot"])
+abundance_id$protein_abundance <- abundance_id$C.s.uniprot
 
 mapping <- dplyr::full_join(x = abundance_id, y = phospho_id, by="C.s.uniprot")[,2:3]
 
@@ -80,12 +80,12 @@ study <- addMapping(study, mapping)
 phospho_results <- phospho[cleaned_phospho_features, c(4, 6:19)]
 phospho_results <- phospho_results %>% mutate_at(c(2:ncol(phospho_results)), as.numeric)
 
-abundance_results <- abundance[cleaned_abundance_features, c(3, 4:17)]
+abundance_results <- protein_abundance[cleaned_abundance_features, c(3, 4:17)]
 abundance_results <- abundance_results %>% mutate_at(c(2:ncol(abundance_results)), as.numeric)
 
 # The featureID in the first column must be a character vector
 results <- list(
-  abundance = list(
+  protein_abundance = list(
     ctrl24h_vs_ctrl00h = abundance_results[, c('C.s.uniprot', 'Ctrl_24Hr.log2FC', 'Ctrl_24Hr.adj.pvalue')],
     inf00h_vs_ctrl00h  = abundance_results[, c('C.s.uniprot', 'Inf_00Hr.log2FC', 'Inf_00Hr.adj.pvalue')],
     inf02h_vs_ctrl00h  = abundance_results[, c('C.s.uniprot', 'Inf_02Hr.log2FC', 'Inf_02Hr.adj.pvalue')],
@@ -94,7 +94,7 @@ results <- list(
     inf12h_vs_ctrl00h  = abundance_results[, c('C.s.uniprot', 'Inf_12Hr.log2FC', 'Inf_12Hr.adj.pvalue')],
     inf24h_vs_ctrl00h  = abundance_results[, c('C.s.uniprot', 'Inf_24Hr.log2FC', 'Inf_24Hr.adj.pvalue')]
   ),
-  phosphorylation = list(
+  protein_phosphorylation = list(
     ctrl24h_vs_ctrl00h = phospho_results[, c('C.s.uniprot', 'Ctrl_24Hr.log2FC', 'Ctrl_24Hr.adj.pvalue')],
     inf00h_vs_ctrl00h  = phospho_results[, c('C.s.uniprot', 'Inf_00Hr.log2FC', 'Inf_00Hr.adj.pvalue')],
     inf02h_vs_ctrl00h  = phospho_results[, c('C.s.uniprot', 'Inf_02Hr.log2FC', 'Inf_02Hr.adj.pvalue')],
@@ -105,12 +105,12 @@ results <- list(
   )
 )
 
-results$abundance <- lapply(results$abundance, setNames, c('C.s.uniprot', 'log2FC', 'adj.pvalue'))
-results$phosphorylation <- lapply(results$phosphorylation, setNames, c('C.s.uniprot', 'log2FC', 'adj.pvalue'))
+results$protein_abundance <- lapply(results$protein_abundance, setNames, c('C.s.uniprot', 'log2FC', 'adj.pvalue'))
+results$protein_phosphorylation <- lapply(results$protein_phosphorylation, setNames, c('C.s.uniprot', 'log2FC', 'adj.pvalue'))
 
 # sort df by adj pvalue
-results$abundance <- lapply(results$abundance, function(x){x[order(x$adj.pvalue),]})
-results$phosphorylation <- lapply(results$phosphorylation, function(x){x[order(x$adj.pvalue),]})
+results$protein_abundance <- lapply(results$protein_abundance, function(x){x[order(x$adj.pvalue),]})
+results$protein_phosphorylation <- lapply(results$protein_phosphorylation, function(x){x[order(x$adj.pvalue),]})
   
 study <- addResults(study, results)
 
@@ -118,7 +118,7 @@ study <- addResults(study, results)
 
 # here we can add a description of each test, along with columns 
 tests <- list(
-  abundance = list(
+  protein_abundance = list(
     ctrl24h_vs_ctrl00h = list(
       description = 'Test of differential expression (abundance proteomics) between control 24h and control 0h',
       C.s.uniprot = 'Chlorocebus sabaeus Uniprot ID (and viral protein identifiers)',
@@ -162,7 +162,7 @@ tests <- list(
       adj.pvalue = 'Adjusted p.value testing the null hypothesis that the log2FC for Inf_24Hr vs Ctrl_00Hr is  0.0'
     )
   ),
-  phosphorylation = list(
+  protein_phosphorylation = list(
     ctrl24h_vs_ctrl00h = list(
       description = 'Test of differential expression (phosphoproteomics) between control 24h and control 0h',
       C.s.uniprot = 'Chlorocebus sabaeus Uniprot ID (and viral protein identifiers)',
@@ -212,14 +212,14 @@ study <- addTests(study, tests)
 # Linkouts to external resources for the results table -------------------------
  
 resultsLinkouts <- list(
-  abundance = list(
+  protein_abundance = list(
     Gene_Name = "https://www.genenames.org/data/gene-symbol-report/#!/symbol/",
     C.s.uniprot = "https://www.uniprot.org/uniprotkb/",
     H.s.uniprot = c("https://www.uniprot.org/uniprotkb/",
                     "https://www.phosphosite.org/uniprotAccAction?id=", 
                     "https://www.proteomicsdb.org/proteomicsdb/#protein/search/query?protein_name=")
   ),
-  phosphorylation = list(
+  protein_phosphorylation = list(
     Gene_Name = "https://www.genenames.org/data/gene-symbol-report/#!/symbol/",
     C.s.uniprot = "https://www.uniprot.org/uniprotkb/",
     H.s.uniprot = c("https://www.uniprot.org/uniprotkb/",
@@ -232,7 +232,7 @@ study <- addResultsLinkouts(study, resultsLinkouts)
 # Custom plots -----------------------------------------------------------------
 
 x <- getPlottingData(study, 
-                     modelID = "abundance",
+                     modelID = "protein_abundance",
                      featureID = c("A0A0D9QUI8"),
                      testID = c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                                 "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -264,18 +264,19 @@ plotMultiTest_singleFeature <- function(x) {
   plotly::plot_ly(data = df, x = ~variable, y = ~log2FC,
                   type = "bar",
                   hoverinfo = 'text',
-                  text = ~paste('adj.pval: ', round(adj.pvalue, 6), '\nlog2FC: ', log2FC), 
+                  text = ~paste('adj.pval: ', round(adj.pvalue, 6), '\nlog2FC: ', log2FC),
                   color = ~variable,
                   colors = cols) %>%
     layout(xaxis = list(title = ''),
-           title = unique(df$features))
+           title = unique(df$features),
+           showlegend = FALSE)
 }
 plotMultiTest_singleFeature(x)
 
 # Singlefeature + Multitest + Multimodel plot 
 x <- getPlottingData(study,
-                     modelID = c(rep("abundance", 7), 
-                                 rep("phosphorylation", 7)),
+                     modelID = c(rep("protein_abundance", 7), 
+                                 rep("protein_phosphorylation", 7)),
                      featureID = c("A0A0D9QUI8"), 
                      testID = rep(c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                                 "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -303,38 +304,33 @@ plotMultiModel_singleFeature <- function(x) {
       }
     }
   }
-  gdf$cols <- c("darkred", "cadetblue1", "cadetblue2", "cadetblue3", "cadetblue", "cadetblue4", "darkblue", 
-                           "darkred", "darkseagreen1", "darkseagreen2", "darkseagreen3", "darkseagreen", "darkseagreen4", "darkgreen")
+  gdf$cols <- c("darkred", "cadetblue1", "cadetblue2", "cadetblue3", "cadetblue", "cadetblue4", "darkblue")
   gdf$groups <- paste(gdf[,"modelID"], gdf[,"testID"], sep = " / ")
+  gdf$log2FC <- round(gdf$log2FC, 4)
+
+  p <- ggplot(data=gdf,
+              aes(text = paste('adj p.val: ', round(adj.pvalue, 4),
+                               '</br> feature: ', feature),
+                  x = testID, y = log2FC)) +
+    geom_bar(stat='identity', fill=gdf$cols) + 
+    facet_grid(modelID~.) +
+    theme(axis.text.x = element_text(angle = 90, vjust = .5),
+          panel.background = element_blank(),
+          axis.ticks.x = element_blank(),
+          panel.grid.major.y = element_line(size = 0.5, linetype = 'solid',
+                                          colour = "gray"), )
   
-  plotly::plot_ly(data = gdf, x = ~feature, y = round(gdf$log2FC, 4),
-                  type = "bar",
-                  color = ~groups,
-                  textposition="none",
-                  hoverinfo = 'text',
-                  text = ~paste('</br> Model: ', modelID, 
-                                '</br> Test: ', testID,
-                                '</br> Feature: ', feature,
-                                '</br> Log2FC: ', round(log2FC, 4),
-                                '</br> adj p.val: ', round(adj.pvalue, 4)),
-                  colors = ~cols) %>%
-    layout(
-      xaxis = list(title = ''),
-      yaxis = list(title = "log2FC"),
-      barmode='group',
-      title = paste0(unique(gdf$modelID)[2], " / ", unique(gdf$modelID)[1]
-      )
-    )
+  ggplotly(p)
 }
 plotMultiModel_singleFeature(x)
 
 # MultiFeature + MultiTest + Multimodel plot
 
 mapped_proteins <- study$mapping$default
-mapped_proteins <- mapped_proteins[!is.na(mapped_proteins$abundance) & !is.na(mapped_proteins$phosphorylation), "abundance"]
+mapped_proteins <- mapped_proteins[!is.na(mapped_proteins$protein_abundance) & !is.na(mapped_proteins$protein_phosphorylation), "protein_abundance"]
 x <- getPlottingData(study,
-                     modelID = c(rep("abundance", 7), 
-                                 rep("phosphorylation", 7)),
+                     modelID = c(rep("protein_abundance", 7), 
+                                 rep("protein_phosphorylation", 7)),
                      featureID = mapped_proteins, 
                      testID = rep(c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                                     "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -346,9 +342,9 @@ plotMultiModel_multiFeature <- function(x) {
   
   mm <- x$mapping[complete.cases(x$mapping),]
   
-  p_results  <- x$abundance$results[[1]][x$abundance$results[[1]]$C.s.uniprot %in% mm$abundance,]
-  t_results  <- x$phosphorylation$results[[1]][x$phosphorylation$results[[1]]$C.s.uniprot %in% mm$phosphorylation,]
-  t_features <- x$phosphorylation$features[x$phosphorylation$features$C.s.uniprot %in% mm$phosphorylation,]
+  p_results  <- x$protein_abundance$results[[1]][x$protein_abundance$results[[1]]$C.s.uniprot %in% mm$protein_abundance,]
+  t_results  <- x$protein_phosphorylation$results[[1]][x$protein_phosphorylation$results[[1]]$C.s.uniprot %in% mm$protein_phosphorylation,]
+  t_features <- x$protein_phosphorylation$features[x$protein_phosphorylation$features$C.s.uniprot %in% mm$protein_phosphorylation,]
   
   # ggdf to store data for plot 
   minuslog10_pval <- -log10(t_results$adj.pvalue)
@@ -387,8 +383,9 @@ plotMultiModel_multiFeature <- function(x) {
                                "abundance adj pval: ", ggdf$pval_proteo, '</br>',
                                "abundance log2FC: ", ggdf$log2FC_m2) ,
                   marker = list(size = ~minuslog10_pval)) %>%
-    layout(yaxis = list(title = paste0('log2FC abundance ', names(x$abundance$results)[[1]])),
-           xaxis = list(title = 'log2FC phosphorylation', names(x$phosphorylation$results)[[1]]),
+    layout(
+      yaxis = list(title = paste0('log2FC abundance | ', names(x$protein_abundance$results)[[1]])),
+           xaxis = list(title = paste0('log2FC phosphorylation | ', names(x$protein_phosphorylation$results)[[1]])),
            legend = list(orientation = 'h'))
 }
 plotMultiModel_multiFeature(x)
@@ -399,7 +396,7 @@ phosphoplot_MultiModel_singleFeature = plotMultiModel_singleFeature
 phosphoplot_MultiModel_multiFeature = plotMultiModel_multiFeature
 
 plots <- list(
-  abundance = list(
+  protein_abundance = list(
     plotMultiTest_singleFeature = list(
       displayName = "barplot log2FC/pval per test",
       packages = c("data.table", "plotly"),
@@ -416,7 +413,7 @@ plots <- list(
       plotType = c("multiFeature", "multiTest", "multiModel", "plotly")
     )
   ),
-  phosphorylation = list(
+  protein_phosphorylation = list(
     phosphoplot_MultiTest_singleFeature = list(
       displayName = "barplot log2FC/pval per test",
       packages = c("data.table", "plotly"),
@@ -438,7 +435,7 @@ plots <- list(
 study <- addPlots(study, plots = plots)
 
 plotStudy(study, 
-          modelID = "abundance", 
+          modelID = "protein_abundance", 
           featureID = "A0A0D9R1T3",
           testID = c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                      "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -447,7 +444,7 @@ plotStudy(study,
           plotID = "plotMultiTest_singleFeature") %>% suppressMessages()
 
 plotStudy(study, 
-          modelID = c(rep("abundance", 7), rep("phosphorylation", 7)), 
+          modelID = c(rep("protein_abundance", 7), rep("protein_phosphorylation", 7)), 
           featureID = "A0A0D9QUI8",
           testID = rep(c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                          "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -456,7 +453,7 @@ plotStudy(study,
           plotID = 'plotMultiModel_singleFeature') %>% suppressMessages()
           
 plotStudy(study, 
-          modelID = c(rep("abundance", 7), rep("phosphorylation", 7)),
+          modelID = c(rep("protein_abundance", 7), rep("protein_phosphorylation", 7)),
           featureID = mapped_proteins,
           testID = rep(c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                          "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -465,7 +462,7 @@ plotStudy(study,
           plotID = 'plotMultiModel_multiFeature') %>% suppressMessages()
 
 plotStudy(study, 
-          modelID = "phosphorylation", 
+          modelID = "protein_phosphorylation", 
           featureID = "A0A0D9R1T3",
           testID = c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                      "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -474,7 +471,7 @@ plotStudy(study,
           plotID = "phosphoplot_MultiTest_singleFeature") %>% suppressMessages()
 
 plotStudy(study, 
-          modelID = c(rep("phosphorylation", 7), rep("abundance", 7)), 
+          modelID = c(rep("protein_phosphorylation", 7), rep("protein_abundance", 7)), 
           featureID = "A0A0D9QUI8",
           testID = rep(c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                          "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -483,7 +480,7 @@ plotStudy(study,
           plotID = 'phosphoplot_MultiModel_singleFeature') %>% suppressMessages()
 
 plotStudy(study, 
-          modelID = c(rep("phosphorylation", 7), rep("abundance", 7)), 
+          modelID = c(rep("protein_phosphorylation", 7), rep("protein_abundance", 7)), 
           featureID = mapped_proteins,
           testID = rep(c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                          "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
@@ -494,8 +491,8 @@ plotStudy(study,
 # Reports ----------------------------------------------------------------------
 
 reports <- list(
-  abundance = "data/report.html",
-  phosphorylation = "data/report.html"
+  protein_abundance = "data/report.html",
+  protein_phosphorylation = "data/report.html"
 )
 study <- addReports(study, reports)
 
