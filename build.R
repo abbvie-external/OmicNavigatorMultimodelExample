@@ -14,15 +14,15 @@ protein_abundance <- openxlsx::read.xlsx("data/1-s2.0-S0092867420308114-mmc1.xls
 
 # Create a new study -----------------------------------------------------------
 
-study <- createStudy("SARSCoVPhosphoproteomicsProfiling",
-                     "SARS-CoV-2 global phosphorylation data converted to OmicNavigator",
+study <- createStudy("SARSCoV2.proteomic.and.phosphoproteomic.profiling",
+                     "SARS-CoV-2 global proteomic and phosphoproteomic analysis from Bouhaddou et al converted into a multi-omic OmicNavigator study. In this work Vero E6 cells were profiled at six time points following SARS-CoV-2 infection with quantitative mass spectrometry. Protein abundance and phosphorylation levels were estimated from this data. Please click on the analysis details button for more information.",
                      version = "0.1.0")
 
 # Models -----------------------------------------------------------------------
 
 models <- list(
-  protein_abundance = "DE analysis of protein abundance in Vero E6 cells",
-  protein_phosphorylation = "DE analysis of protein phosphorylation in Vero E6 cells" 
+  protein_abundance = "Differential protein abundance analysis in SARS-CoV-2 infected or mock treated Vero E6 cells",
+  protein_phosphorylation = "Differential protein phosphorylation analysis in SARS-CoV-2 infected or mock treated Vero E6 cells" 
 )
 study <- addModels(study, models)
 
