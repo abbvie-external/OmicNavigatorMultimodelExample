@@ -324,7 +324,7 @@ plotMultiModel_singleFeature <- function(x) {
 }
 plotMultiModel_singleFeature(x)
 
-# MultiFeature + MultiTest + Multimodel plot
+# MultiFeature + singleTest + Multimodel plot
 
 mapped_proteins <- study$mapping$default
 mapped_proteins <- mapped_proteins[!is.na(mapped_proteins$protein_abundance) & !is.na(mapped_proteins$protein_phosphorylation), "protein_abundance"]
@@ -349,7 +349,6 @@ plotMultiModel_multiFeature <- function(x) {
   # ggdf to store data for plot 
   minuslog10_pval <- -log10(t_results$adj.pvalue)
   threshold       <- t_results$adj.pvalue < 0.05 & abs(t_results$log2FC) > 1.8
-  pval            <- as.factor(ifelse(threshold, "p<0.05 & abs(FC_phosphorylation) > 1.8", "p>0.05 or abs(FC_phosphorylation) <= 1.8"))
   gene_labels     <- as.character(t_features$Gene_Name)
   
   ggdf <- as.data.frame(
@@ -367,15 +366,12 @@ plotMultiModel_multiFeature <- function(x) {
       )
     )
   )
-  ggdf <- cbind(ggdf, pval) 
   ggdf$log2FC_m1 <- as.numeric(ggdf$log2FC_m1)
   ggdf$log2FC_m2 <- as.numeric(ggdf$log2FC_m2)
   
   plotly::plot_ly(data = ggdf, x = ~log2FC_m1, y = ~log2FC_m2,
                   type = "scatter",
                   mode = "markers",
-                  color = ~pval,
-                  colors = c("darkblue", "lightblue"),
                   hoverinfo = 'text',
                   text = paste(ggdf$feature, '</br></br>',
                                "phosphorylation adj pval: ", ggdf$pval_transc, '</br>',
@@ -385,8 +381,7 @@ plotMultiModel_multiFeature <- function(x) {
                   marker = list(size = ~minuslog10_pval)) %>%
     layout(
       yaxis = list(title = paste0('log2FC abundance | ', names(x$protein_abundance$results)[[1]])),
-           xaxis = list(title = paste0('log2FC phosphorylation | ', names(x$protein_phosphorylation$results)[[1]])),
-           legend = list(orientation = 'h'))
+           xaxis = list(title = paste0('log2FC phosphorylation | ', names(x$protein_phosphorylation$results)[[1]])))
 }
 plotMultiModel_multiFeature(x)
 
@@ -410,7 +405,7 @@ plots <- list(
     plotMultiModel_multiFeature = list(
       displayName = "multiModel scatterplot",
       packages = c("data.table", "plotly"),
-      plotType = c("multiFeature", "multiTest", "multiModel", "plotly")
+      plotType = c("multiFeature", "singleTest", "multiModel", "plotly")
     )
   ),
   protein_phosphorylation = list(
@@ -427,7 +422,7 @@ plots <- list(
     phosphoplot_MultiModel_multiFeature = list(
       displayName = "multiModel scatterplot",
       packages = c("data.table", "plotly"),
-      plotType = c("multiFeature", "multiTest", "multiModel", "plotly")
+      plotType = c("multiFeature", "singleTest", "multiModel", "plotly")
     )
   )
 )

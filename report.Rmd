@@ -9,7 +9,7 @@ output:
 
 This example was adapted from the publication 
 ["The Global Phosphorylation Landscape of SARS-CoV-2 Infection"](https://www.sciencedirect.com/science/article/pii/S0092867420308114?via%3Dihub#app2) 
-by Bouhaddou M et al. (Cell, 2020), to demonstrate how to upload a multi-model study to [OmicNavigator](https://github.com/abbvie-external/OmicNavigator) (ON). More information about this code and the data required to execute it can be found at [OmicNavigatorMultimodelExample](https://github.com/abbvie-external/OmicNavigatorExample/tree/main).
+by Bouhaddou M et al. (Cell, 2020), to demonstrate how to upload a multi-model study to [OmicNavigator](https://github.com/abbvie-external/OmicNavigator) (ON). More information about this code and the data required to execute it can be found at [OmicNavigatorMultimodelExample](https://github.com/abbvie-external/OmicNavigatorMultimodelExample/tree/main).
 
 Below you find a short excerpt of the methods:
 
