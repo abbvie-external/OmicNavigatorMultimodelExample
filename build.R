@@ -329,9 +329,9 @@ plotMultiModel_singleFeature(x)
 mapped_proteins <- study$mapping$default
 mapped_proteins <- mapped_proteins[!is.na(mapped_proteins$protein_abundance) & !is.na(mapped_proteins$protein_phosphorylation), "protein_abundance"]
 x <- getPlottingData(study,
-                     modelID = c(rep("protein_abundance", 7), 
-                                 rep("protein_phosphorylation", 7)),
-                     featureID = mapped_proteins, 
+                     modelID = c(rep("protein_phosphorylation", 7), 
+                                 rep("protein_abundance", 7)),
+                     featureID = mapped_proteins,
                      testID = rep(c("ctrl24h_vs_ctrl00h", "inf00h_vs_ctrl00h",
                                     "inf02h_vs_ctrl00h", "inf04h_vs_ctrl00h",
                                     "inf08h_vs_ctrl00h", "inf12h_vs_ctrl00h",
@@ -341,6 +341,7 @@ head(x)
 plotMultiModel_multiFeature <- function(x) {
   
   mm <- x$mapping[complete.cases(x$mapping),]
+  if (nrow(mm) == 0) stop('Selected features cannot be mapped across models') 
   
   p_results  <- x$protein_abundance$results[[1]][x$protein_abundance$results[[1]]$C.s.uniprot %in% mm$protein_abundance,]
   t_results  <- x$protein_phosphorylation$results[[1]][x$protein_phosphorylation$results[[1]]$C.s.uniprot %in% mm$protein_phosphorylation,]
